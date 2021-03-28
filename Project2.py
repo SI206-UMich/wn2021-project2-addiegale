@@ -137,7 +137,8 @@ def extra_credit(filepath):
     description = soup.find('div', id = 'description')
     description = description.findAll('span')[-1].text
     #entities = re.findall(r'([A-Z][a-z]{3,} [A-Z][a-z]{3,})', description)
-    entities = re.findall(r'([A-Z][a-z]{2,}) ([A-Z][a-z]{2,}){1,}', description)
+    entities = re.findall(r'([A-Z][a-z]{2,})(( [A-Z][a-z]{2,})+)', description)
+    entities = [''.join(words[0:-1]) for words in entities]
     return entities
     
 
