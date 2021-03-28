@@ -120,7 +120,10 @@ def write_csv(data, filename):
 
     This function should not return anything.
     """
-    pass
+    with open(filename, 'w') as file:
+        file.write('Book title,Author Name\n')
+        for line in data:
+            file.write(','.join(line) + '\n')
 
 
 def extra_credit(filepath):
@@ -130,7 +133,13 @@ def extra_credit(filepath):
     Please see the instructions document for more information on how to complete this function.
     You do not have to write test cases for this function.
     """
-    pass
+    soup = BeautifulSoup(open(filepath), 'html.parser')
+    description = soup.find('div', id = 'description')
+    description = description.findAll('span')[-1].text
+    #entities = re.findall(r'([A-Z][a-z]{3,} [A-Z][a-z]{3,})', description)
+    entities = re.findall(r'([A-Z][a-z]{2,}) ([A-Z][a-z]{2,}){1,}', description)
+    return entities
+    
 
 class TestCases(unittest.TestCase):
     # call get_search_links() and save it to a static variable: search_urls
@@ -230,21 +239,32 @@ class TestCases(unittest.TestCase):
 
     def test_write_csv(self):
         # call get_titles_from_search_results on search_results.htm and save the result to a variable
+        result = get_titles_from_search_results('search_results.htm')
 
         # call write csv on the variable you saved and 'test.csv'
+        write_csv(result, 'test.csv')
 
         # read in the csv that you wrote (create a variable csv_lines - a list containing all the lines in the csv you just wrote to above)
-
+        with open('test.csv') as file:
+            csv_lines = file.readlines()
 
         # check that there are 21 lines in the csv
+        self.assertEqual(len(csv_lines), 21)
 
         # check that the header row is correct
+        self.assertEqual(csv_lines[0].strip(), "Book title,Author Name")
 
         # check that the next row is 'Harry Potter and the Deathly Hallows (Harry Potter, #7)', 'J.K. Rowling'
+        self.assertEqual(csv_lines[1].strip(), 'Harry Potter and the Deathly Hallows (Harry Potter, #7),J.K. Rowling')
 
         # check that the last row is 'Harry Potter: The Prequel (Harry Potter, #0.5)', 'J.K. Rowling'
-        pass
+        self.assertEqual(csv_lines[-1].strip(), 'Harry Potter: The Prequel (Harry Potter, #0.5),J.K. Rowling')
 
+    def test_extra_credit(self):
+        entities = extra_credit('extra_credit.htm')
+        print(entities)
+        self.assertEqual(type(entities), list)
+        self.assertEqual(len(entities), 9)
 
 
 if __name__ == '__main__':
